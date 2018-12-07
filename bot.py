@@ -17,7 +17,7 @@ def main():
 
     dp = mybot.dispatcher
     dp.add_handler(CommandHandler("start", greet_user))
-    dp.add_handler(CommandHandler("planet", get_constellation))
+    dp.add_handler(CommandHandler("planet", planet)) # get_constellation))
     dp.add_handler(MessageHandler(Filters.text, talk_to_me))
     mybot.start_polling()
     mybot.idle()
@@ -33,13 +33,25 @@ def talk_to_me(bot, update):
     print(user_text)
     update.message.reply_text(user_text)
 
-def get_constellation(bot, update):
-    user_text = update.message.text
-    planet_name = user_text.split(' ')[1]
-    if planet_name == 'Mars':
+# def get_constellation(bot, update):
+#     user_text = update.message.text
+#     planet_name = user_text.split(' ')[1]
+#     if planet_name == 'Mars':
+#         date = datetime.datetime.now()
+#         planet = ephem.Mars(date.strftime('%Y/%m/%d'))
+#     print(ephem.constellation(planet))
+#     update.message.reply_text(ephem.constellation(planet))
+"""Reply given planet constellation position now."""
+def planet(bot, update):
+    words = update.message.text.split()
+    text = 'No such planet name!'
+    if len(words) > 1:
+        words[1] = words[1].lower().capitalize()
+        try:
+            planet = getattr(ephem, words[1])
+        except AttributeError:
+            bot.send_message(chat_id=update.message.chat_id, text=text)
+            return 
         date = datetime.datetime.now()
-        planet = ephem.Mars(date.strftime('%Y/%m/%d'))
-    print(ephem.constellation(planet))
-    update.message.reply_text(ephem.constellation(planet))
-
+        update.message.reply_text(ephem.constellation(planet(date.strftime('%Y/%m/%d'))))
 main()
